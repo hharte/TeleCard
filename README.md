@@ -165,14 +165,16 @@ Not Used
 
 
 
-# Building the Arduino ATMEGA 2560 Adapter
+# Building the Arduino ATmega32u4 Adapter
 
-Use jumper wires to connect the following pins from the [ATmega 2560 board](https://www.amazon.com/ELEGOO-ATmega2560-ATMEGA16U2-Projects-Compliant/dp/B01H4ZLZLQ) to the 2x7 pin connector of the Nortel NPS50883-01L5 Card Reader.  Pin numbering on the 2x7 header is with reference to the arrow on the IDC connector housing, not the red stripe on the ribbon cable.  Some card reader assemblies have the red stripe on the wrong side.
+This project uses a [https://www.sparkfun.com/products/15795](https://www.sparkfun.com/products/15795).  Solder a 2x7 pin male header to SparkFun board, with pin 13 of the header connecting to GND on the board, and pin 1 of the header to GPIO7.  For the even numbered header pins, solder four wires.
+
+**_Note:_** Pin numbering on the 2x7 header is with reference to the arrow on the IDC connector housing, not the red stripe on the ribbon cable.  Some card reader assemblies have the red stripe on the wrong side.
 
 
 <table>
   <tr>
-   <td>ATMega Pin
+   <td>SparkFun Pro Micro C
    </td>
    <td>2x7 IDC Connector
    </td>
@@ -180,19 +182,51 @@ Use jumper wires to connect the following pins from the [ATmega 2560 board](http
    </td>
   </tr>
   <tr>
-   <td>VCC
+   <td>7
    </td>
-   <td>10
+   <td>1
    </td>
-   <td>+5VDC
+   <td>Clock
    </td>
   </tr>
   <tr>
-   <td>GND
+   <td>6
    </td>
+   <td>3
+   </td>
+   <td>FUSE (not used)
+   </td>
+  </tr>
+  <tr>
+   <td>5
+   </td>
+   <td>5
+   </td>
+   <td>RESET (not used)
+   </td>
+  </tr>
+  <tr>
+   <td>4
+   </td>
+   <td>7
+   </td>
+   <td>R
+   </td>
+  </tr>
+  <tr>
+   <td>3
+   </td>
+   <td>9
+   </td>
+   <td>Magnetic Stripe Switch (not used)
+   </td>
+  </tr>
+  <tr>
    <td>2
    </td>
-   <td>Ground (for card detect)
+   <td>11
+   </td>
+   <td>Pull Up
    </td>
   </tr>
   <tr>
@@ -204,41 +238,73 @@ Use jumper wires to connect the following pins from the [ATmega 2560 board](http
    </td>
   </tr>
   <tr>
+   <td>GND
+   </td>
    <td>2
    </td>
-   <td>1
-   </td>
-   <td>Clock
+   <td>Ground (for card detect)
    </td>
   </tr>
   <tr>
-   <td>3
+   <td>VCC
    </td>
-   <td>7
+   <td>10
    </td>
-   <td>R
-   </td>
-  </tr>
-  <tr>
-   <td>4
-   </td>
-   <td>14
-   </td>
-   <td>I/O
+   <td>+5VDC
    </td>
   </tr>
   <tr>
-   <td>5
+   <td>8
    </td>
    <td>12
    </td>
    <td>Card Detect
    </td>
   </tr>
+  <tr>
+   <td>9
+   </td>
+   <td>14
+   </td>
+   <td>I/O
+   </td>
+  </tr>
 </table>
 
 
-Load the sketch in the Arduino IDE (tested with v1.8.19) and download the the ATmega 2560 board.  Use the Arduino IDE’s “serial monitor” function at 115200 baud to view the output.
+
+## Items Needed
+
+
+<table>
+  <tr>
+   <td><a href="https://www.amazon.com/SparkFun-Qwiic-Pro-Micro-microcontroller/dp/B084KPT7MH">SparkFun Pro Micro C</a>
+   </td>
+   <td>Available at Amazon and DigiKey.
+   </td>
+  </tr>
+  <tr>
+   <td><a href="https://www.amazon.com/14-Pin-Straight-Header-Connector-Sockets/dp/B01071U7EA">2x7 Male Header</a>
+   </td>
+   <td>Or use a break-away header, but be careful of the orientation when plugging in the card reader.
+   </td>
+  </tr>
+  <tr>
+   <td>Nortel NPS50883-01L5 Card Reader assembly
+   </td>
+   <td>Borrow from a Nortel Millennium payphone.
+   </td>
+  </tr>
+</table>
+
+
+See photos.  Note, I used a 2x10 shrouded header, removed six pins, and slightly enlarged the key, as I did not have a 2x7 shrouded header readily available.
+
+![alt_text](https://raw.githubusercontent.com/hharte/TeleCard/main/images/Telecard_back.jpg "image_tooltip")
+
+![alt_text](https://raw.githubusercontent.com/hharte/TeleCard/main/images/Telecard_front.jpg "image_tooltip")
+
+Load the sketch in the Arduino IDE (tested with v1.8.19) and download to the ATmega 2560 board.  Use the Arduino IDE’s “serial monitor” function at 115200 baud to view the output.
 
 Example run:
 
@@ -247,12 +313,25 @@ Example run:
 TeleCard Reader (c) 2022 - Howard M. Harte
 https://github.com/hharte/TeleCard
 
-Insert TeleCard.
+00: 93 AB 6F 02 00 32 0D BA
+08: 00 00 77 11 01 FF FF FF
+10: FF FF FF FF FF FF FF FF
+18: FF FF FF FF FF FF FF FF
+20: 0A 00 0A 00 0A 00 8A 80
+28: 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00
+38: 00 00 00 00 00 00 00 00
 
-00: 93 AC 6F 02 01 BC E1 B7
-08: 00 00 00 33 FF FF FF FF
+    Card length: 512 bits
+    Card number: 9111000217100012813
+       Checksum: 0xBA
+Units remaining: 105
+  Present value: $5.25
+
 Done reading TeleCard.  Remove and re-insert to read another.
 ```
+
+
 
 
 
@@ -567,7 +646,7 @@ Ned
   <tr>
    <td>11
    </td>
-   <td>0x71
+   <td>0x77
    </td>
    <td>0x00
    </td>
@@ -619,23 +698,23 @@ Ned
    </td>
   </tr>
   <tr>
-   <td>
+   <td>Units remaining
    </td>
    <td>
    </td>
-   <td>
+   <td>105
    </td>
-   <td>
+   <td>24
    </td>
-   <td>
+   <td>100
    </td>
-   <td>
+   <td>200
    </td>
-   <td>
+   <td>200
    </td>
    <td>1000
    </td>
-   <td>251
+   <td>250
    </td>
   </tr>
 </table>
@@ -854,7 +933,7 @@ USW5
    </td>
    <td>0x38
    </td>
-   <td>0c05
+   <td>0x05
    </td>
    <td>0xC0
    </td>
@@ -982,21 +1061,21 @@ USW5
    </td>
   </tr>
   <tr>
-   <td>
+   <td>Units Remaining
    </td>
    <td>
    </td>
-   <td>
+   <td>100
    </td>
-   <td>
+   <td>200
    </td>
-   <td>
+   <td>400
    </td>
-   <td>
+   <td>20
    </td>
-   <td>
+   <td>400
    </td>
-   <td>
+   <td>400
    </td>
    <td>
    </td>
@@ -1313,30 +1392,35 @@ $0.00
    </td>
   </tr>
   <tr>
-   <td>
+   <td>Units Remaining
    </td>
    <td>
    </td>
-   <td>0x1F4
+   <td>100
    </td>
-   <td>0x1C2
+   <td>90
    </td>
-   <td>0x190
+   <td>80
    </td>
-   <td>0x12C
+   <td>60
    </td>
-   <td>0xC8
+   <td>40
    </td>
-   <td>0x64
+   <td>20
    </td>
-   <td>
+   <td>0
    </td>
   </tr>
 </table>
 
 
 
+# 
+
+
 # References
 
 [Telecard FAQ](http://laurent.deschamps.free.fr/telecarte/phonecar.htm)
+
+[SparkFun Pro Micro C](https://www.sparkfun.com/products/15795) details
 
