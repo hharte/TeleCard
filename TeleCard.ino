@@ -1,5 +1,5 @@
 /*
- * TeleCard - Read TeleCards with the Arduino ATmega32u4
+ * Telecard - Read Telecards with the Arduino ATmega32u4
  *
  * www.github.com/hharte/TeleCard
  *
@@ -12,10 +12,10 @@
  *
  */
 
-#define BAUD_RATE 115200
+#include "Telecard.h"
 
-#define CARD_SIZE  512  /* in bits */
-//#define C_OUTPUT      /* Define to output data as a C data structure */
+#define BAUD_RATE 115200
+#define C_OUTPUT      /* Define to output data as a C data structure */
 
 /*
           ISO 7816-2
@@ -60,20 +60,14 @@ Payphone.
 /* These are not used by the software */
 #define MAG_DET   3   /* Mag Card Switch  9 Magnetic Card Switch */
 #define RESET     5   /* Pin 5            5 Not used             */
-#define FUSE      6   /* Pin 6            3 Not used             */
+#define FUSE_I    6   /* Pin 6            3 Not used             */
 
 /* function prototypes */
 void tc_reset(void);
 uint8_t tc_read(void);
-uint8_t count_bits(uint8_t value);
-uint16_t counter_to_units(void);
-uint32_t card_serial_num(void);
-void print_card_value(void);
-void card_data_to_c(void);
 
 /* global variables */
 char outstr[81];
-uint8_t tc_data[CARD_SIZE / 8] = { 0 };
 
 void setup() {
   /* Initialize serial port */
@@ -87,75 +81,58 @@ void setup() {
   pinMode (MAG_DET, INPUT_PULLUP);
   pinMode (CD_DET,  INPUT_PULLUP);
   pinMode (RESET,   INPUT_PULLUP);
-  pinMode (FUSE,    INPUT_PULLUP);
+  pinMode (FUSE_I,  INPUT_PULLUP);
   pinMode (PULLUP,  INPUT_PULLUP);
 
   while (!Serial) {
     /* wait for USB serial port to connect */
   }
 
-  Serial.print("\nTeleCard Reader (c) 2022 - Howard M. Harte\n");
+  Serial.print("\nTelecard Reader (c) 2022 - Howard M. Harte\n");
   Serial.print("https://github.com/hharte/TeleCard\n\n");
 }
 
 void loop() {
   uint8_t databyte;
   uint8_t bytecnt;
+  tc_data_t tc_data = { 0 };
 
   if (digitalRead(CD_DET) == 0) {
-    Serial.print("Insert TeleCard.\n");
+    Serial.print("Insert Telecard.\n");
     while(digitalRead(CD_DET) == 0) {
       /* Wait for card to be inserted... */
     }
   }
 
+  memset(&tc_data, 0, sizeof(tc_data));
   tc_reset();
   
   for (bytecnt = 0; bytecnt < (CARD_SIZE / 8); bytecnt++) {
     databyte = tc_read();
 
-    tc_data[bytecnt] = databyte;
+    tc_data.raw[bytecnt] = databyte;
 
-    if ((bytecnt == 0) && (tc_data[0] == 0xFF)) {
+    if ((bytecnt == 0) && (tc_data.raw[0] == 0xFF)) {
       Serial.print("\nInvalid read, please try again.\n");
       break;
     }
 
-    if ((bytecnt == 0x10) && (tc_data[0x10] == tc_data[0])) {
+    if ((bytecnt == 0x10) && (tc_data.raw[0x10] == tc_data.raw[0])) {
       break;
     }
-
-    if (bytecnt % 8 == 0) {
-      snprintf(outstr, sizeof(outstr), "\n%02X:", bytecnt);
-      Serial.print(outstr);      
-    }
-    snprintf(outstr, sizeof(outstr), " %02X", databyte);
-    Serial.print(outstr);
   }
 
   digitalWrite(R, 0);
 
-  if (tc_data[0] != 0xFF) {
-
-    snprintf(outstr, sizeof(outstr), "\n\n    Card length: %d bits\n", bytecnt * 8);
-    Serial.print(outstr);
-
-    snprintf(outstr, sizeof(outstr), "    Card number: 9%03u0%03u%03u%08lu\n",
-      tc_data[2], tc_data[3], tc_data[1],
-      card_serial_num());
-    Serial.print(outstr);
-
-    snprintf(outstr, sizeof(outstr), "       Checksum: 0x%02X\n", tc_data[7]);
-    Serial.print(outstr);
-
-    print_card_value();
+  if (tc_data.raw[0] != 0xFF) {
+    dump_card_data(&tc_data, bytecnt);
+    print_card_details(&tc_data, bytecnt);
+#ifdef C_OUTPUT
+    card_data_to_c(&tc_data);
+#endif /* C_OUTPUT */
   }
 
-#ifdef C_OUTPUT
-  card_data_to_c();
-#endif /* C_OUTPUT */
-
-  Serial.print("\nDone reading TeleCard.  Remove and re-insert to read another.\n\n");
+  Serial.print("\nDone reading Telecard.  Remove and re-insert to read another.\n\n");
 
   while(digitalRead(CD_DET) == 1) {
     /* Wait for card to be removed... */
@@ -164,7 +141,7 @@ void loop() {
   delay(250); /* Debounce before reading the next card. */
 }
 
-/* Solaic TeleCards - Reset */
+/* Solaic Telecards - Reset */
 void tc_reset(void) {
     digitalWrite(CLK, 0);
     digitalWrite(R, 0);
@@ -193,85 +170,4 @@ uint8_t tc_read(void) {
     }
 
     return databyte;
-}
-
-/* Count number of bits set to 1. */
-uint8_t count_bits(uint8_t value) {
-  uint8_t bitcount = 0;
-  while (value > 0) {
-    if (value & 1) bitcount ++;
-    value >>= 1;
-  }
-  return bitcount;
-}
-
-/* This style of counter seems specific to the US / Canada cards. */
-/* Observed with US West, GTE, Bell cards. */
-uint16_t counter_to_units(void) {
-  uint8_t bits;
-  uint16_t units = 0;
-
-  units  = count_bits(tc_data[12]);
-  units += (count_bits(tc_data[11] & 0x0F) * 8);
-  units += (count_bits(tc_data[10] & 0x0F) * 32);
-  units += (count_bits(tc_data[ 9] & 0x0F) * 128);
-  units += (count_bits(tc_data[ 8] & 0x0F) * 512);
-
-  return units;
-}
-
-uint32_t card_serial_num(void) {
-  uint32_t serialnum;
-
-  serialnum  = ((uint32_t)tc_data[4] << 16);
-  serialnum |= ((uint32_t)tc_data[5] << 8);
-  serialnum |=  (uint32_t)tc_data[6];
-
-  return serialnum;
-}
-
-/* Display the card value, assuming $0.05/unit */
-void print_card_value(void) {
-  uint8_t dollars;
-  uint8_t cents;
-  uint16_t units_remaining = counter_to_units();
-
-  snprintf(outstr, sizeof(outstr), "Units remaining: %d\n", units_remaining);
-  Serial.print(outstr);
-
-  dollars = (counter_to_units() * 5) / 100;
-  cents = (counter_to_units() * 5) - (dollars * 100);
-
-  snprintf(outstr, sizeof(outstr), "  Present value: $%d.%02d\n", dollars, cents);
-  Serial.print(outstr);
-}
-
-void card_data_to_c(void) {
-      snprintf(outstr, sizeof(outstr), "\n{ /* Card number: 9%03u0%03u%03u%08lu, %d units */\n",
-      tc_data[2], tc_data[3], tc_data[1],
-      card_serial_num(),
-      counter_to_units());
-    Serial.print(outstr);
-    snprintf(outstr, sizeof(outstr), "    0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X,\n",
-      tc_data[0],
-      tc_data[1],
-      tc_data[2],
-      tc_data[3],
-      tc_data[4],
-      tc_data[5],
-      tc_data[6],
-      tc_data[7]);
-    Serial.print(outstr);
-    snprintf(outstr, sizeof(outstr), "    0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X\n",
-      tc_data[8],
-      tc_data[9],
-      tc_data[10],
-      tc_data[11],
-      tc_data[12]);
-    Serial.print(outstr);
-    snprintf(outstr, sizeof(outstr), "    0x%02X, 0x%02X, 0x%02X\n};\n",
-      tc_data[13],
-      tc_data[14],
-      tc_data[15]);
-    Serial.print(outstr);
 }
