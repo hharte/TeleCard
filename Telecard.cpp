@@ -5,6 +5,15 @@
  *
  * (c) 2022, Howard M. Harte
  *
+ * Smart card number definition: (ref: CALLTYP (Call Type) pp. 2-46)
+ * =================================================================
+ * Smart card identifier: 1 digit: A nine in this position prevents a leading 0 digit and controls conflicts with other card types.
+ * Application Code: 3 digits Range 000 to 255
+ * Issue ID: 2 digits Range 00 to 15
+ * Card Value: 2 digits Range 00 to 15
+ * Card/Chip Manufacturer: 3 digits Range 000 to 255
+ * Serial number: 8 digits 00,000,000 to 16,777,216
+ *
  */
 
 #include <stdint.h>
@@ -136,7 +145,7 @@ void card_data_to_c(tc_data_t *tc) {
     tc->raw[6],
     tc->raw[7]);
   Serial.print(outstr);
-  snprintf(outstr, sizeof(outstr), "    0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X\n",
+  snprintf(outstr, sizeof(outstr), "    0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X,\n",
     tc->raw[8],
     tc->raw[9],
     tc->raw[10],
