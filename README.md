@@ -54,7 +54,7 @@ Not Used
    </td>
    <td>CLOCK
    </td>
-   <td>White
+   <td>Smart Card Clock
    </td>
   </tr>
   <tr>
@@ -62,7 +62,7 @@ Not Used
    </td>
    <td>Card Switch Common
    </td>
-   <td>Common to jam and card switch, tie to GND
+   <td>Switch Common, tie to GND
    </td>
   </tr>
   <tr>
@@ -70,7 +70,7 @@ Not Used
    </td>
    <td>FUSE
    </td>
-   <td>Not used
+   <td>Smart Card Fuse (Not used)
    </td>
   </tr>
   <tr>
@@ -86,7 +86,7 @@ Not Used
    </td>
    <td>RESET
    </td>
-   <td>Not used
+   <td>Smart Card Reset (Not used)
    </td>
   </tr>
   <tr>
@@ -102,7 +102,7 @@ Not Used
    </td>
    <td>R
    </td>
-   <td>Yellow
+   <td>Smart Card R
    </td>
   </tr>
   <tr>
@@ -110,15 +110,15 @@ Not Used
    </td>
    <td>VPP
    </td>
-   <td>Not used
+   <td>Smart Card Vpp (Not used)
    </td>
   </tr>
   <tr>
    <td>9
    </td>
-   <td>?
+   <td>MAG_CD
    </td>
-   <td>Middle of jam switch.
+   <td>Magnetic Card Switch
    </td>
   </tr>
   <tr>
@@ -140,7 +140,7 @@ Not Used
   <tr>
    <td>12
    </td>
-   <td>Card Present
+   <td>CD_DET
    </td>
    <td>Card Present (5V when card is inserted, 0 when not.)
    </td>
@@ -150,7 +150,7 @@ Not Used
    </td>
    <td>GND
    </td>
-   <td>Black
+   <td>
    </td>
   </tr>
   <tr>
@@ -158,7 +158,7 @@ Not Used
    </td>
    <td>I/O
    </td>
-   <td>Green
+   <td>Smart Card Data
    </td>
   </tr>
 </table>
@@ -167,7 +167,7 @@ Not Used
 
 # Building the Arduino ATmega32u4 Adapter
 
-This project uses a [https://www.sparkfun.com/products/15795](https://www.sparkfun.com/products/15795).  Solder a 2x7 pin male header to SparkFun board, with pin 13 of the header connecting to GND on the board, and pin 1 of the header to GPIO7.  For the even numbered header pins, solder four wires.
+This project uses a [SparkFun Qwiic Pro Micro - USB-C (ATmega32U4)](https://www.sparkfun.com/products/15795).  Solder a 2x7 pin male header to SparkFun board, with pin 13 of the header connecting to GND on the board, and pin 1 of the header to GPIO7.  For the even numbered header pins, solder four wires.
 
 **_Note:_** Pin numbering on the 2x7 header is with reference to the arrow on the IDC connector housing, not the red stripe on the ribbon cable.  Some card reader assemblies have the red stripe on the wrong side.
 
@@ -385,6 +385,222 @@ Data is valid on clock leading edge (CPHA=0)
 Enable line is active low (standard)
 
 
+
+
+# Decoded Cards: Nortel Demo Cards
+
+
+<table>
+  <tr>
+   <td colspan="2" >
+   </td>
+   <td>Nortel Going Beyond
+<p>
+$3.00
+   </td>
+   <td>Nortel Choice Attitude
+<p>
+$3.00
+   </td>
+  </tr>
+  <tr>
+   <td colspan="2" >Year
+   </td>
+   <td>10/1997
+   </td>
+   <td>7/1997
+   </td>
+  </tr>
+  <tr>
+   <td colspan="2" >Edition
+   </td>
+   <td>1
+   </td>
+   <td>2
+   </td>
+  </tr>
+  <tr>
+   <td colspan="2" >Series
+   </td>
+   <td>2
+   </td>
+   <td>2
+   </td>
+  </tr>
+  <tr>
+   <td colspan="2" >Quantity
+   </td>
+   <td>10,000
+   </td>
+   <td>10,000
+   </td>
+  </tr>
+  <tr>
+   <td colspan="2" >Manufacturer
+   </td>
+   <td>Giesecke & Devrient
+   </td>
+   <td>GEMPLUS
+   </td>
+  </tr>
+  <tr>
+   <td colspan="2" >Card Number
+   </td>
+   <td>9255000104800010302
+   </td>
+   <td>9255000104300010710
+   </td>
+  </tr>
+  <tr>
+   <td>Use
+   </td>
+   <td>Byte
+   </td>
+   <td>
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>
+   </td>
+   <td>1
+   </td>
+   <td>0x98
+   </td>
+   <td>0x10
+   </td>
+  </tr>
+  <tr>
+   <td>Country
+   </td>
+   <td>2
+   </td>
+   <td>0x30
+   </td>
+   <td>0x2B
+   </td>
+  </tr>
+  <tr>
+   <td rowspan="6" >Issuer Area
+   </td>
+   <td>3
+   </td>
+   <td>0xFF
+   </td>
+   <td>0xFF
+   </td>
+  </tr>
+  <tr>
+   <td>4
+   </td>
+   <td>0x01
+   </td>
+   <td>0x01
+   </td>
+  </tr>
+  <tr>
+   <td>5
+   </td>
+   <td>0x00
+   </td>
+   <td>0x00
+   </td>
+  </tr>
+  <tr>
+   <td>6
+   </td>
+   <td>0x28
+   </td>
+   <td>0x29
+   </td>
+  </tr>
+  <tr>
+   <td>7
+   </td>
+   <td>0x3E
+   </td>
+   <td>0xD6
+   </td>
+  </tr>
+  <tr>
+   <td>8
+   </td>
+   <td>0x0F
+   </td>
+   <td>0x19
+   </td>
+  </tr>
+  <tr>
+   <td rowspan="5" >Counter4096
+<p>
+512
+<p>
+64
+<p>
+8
+<p>
+1
+   </td>
+   <td>9
+   </td>
+   <td>0x00
+   </td>
+   <td>0x00
+   </td>
+  </tr>
+  <tr>
+   <td>10
+   </td>
+   <td>0x00
+   </td>
+   <td>0x00
+   </td>
+  </tr>
+  <tr>
+   <td>11
+   </td>
+   <td>0x11
+   </td>
+   <td>0x11
+   </td>
+  </tr>
+  <tr>
+   <td>12
+   </td>
+   <td>0x77
+   </td>
+   <td>0x77
+   </td>
+  </tr>
+  <tr>
+   <td>13
+   </td>
+   <td>0x0F
+   </td>
+   <td>0x0F
+   </td>
+  </tr>
+  <tr>
+   <td>Units remaining
+   </td>
+   <td>
+   </td>
+   <td>60
+   </td>
+   <td>60
+   </td>
+  </tr>
+</table>
+
+
+![alt_text](https://raw.githubusercontent.com/hharte/TeleCard/main/images/cards/Nortel_Going_Beyond_Front.jpg "image_tooltip")
+
+![alt_text](https://raw.githubusercontent.com/hharte/TeleCard/main/images/cards/Nortel_Going_Beyond_Back.jpg "image_tooltip")
+
+![alt_text](https://raw.githubusercontent.com/hharte/TeleCard/main/images/cards/Nortel_Choice_Attitude_Front.jpg "image_tooltip")
+
+![alt_text](https://raw.githubusercontent.com/hharte/TeleCard/main/images/cards/Nortel_Choice_Attitude_Back.jpg "image_tooltip")
 
 
 # Decoded Cards
